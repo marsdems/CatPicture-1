@@ -78,15 +78,28 @@ void CatPictureApp::basicRectangle(uint8_t* pixels, int x1, int x2, int y1, int 
 	if (starty >= kAppHeight) return;
 	if (endx >= kAppWidth) endx = kAppWidth - 1;
 	if (endy >= kAppHeight) endy = kAppHeight - 1;	
-
+	//My attempt at concentric rectangles with alternating colors. Only works properly with squares. 
 	for (int y = starty; y <= endy; y++) {
 		for (int x = startx; x <= endx; x++) {
-			if ((y == starty || y == endy) || (x == startx || x == endx)){
+			if ((y == starty || y == endy) || (x == startx || x == endx) || (y%2==0 && x>y && x+y <= endx) || (x%2==0 && x>y && x+y >= endx) 
+			|| (x%2==0 && x<y && x+y <= endx) || (y%2==0 && x<y && x+y >= endx) || (x==y) && x%2==0){
 			pixels[3*(x + y*kTextureSize)] = fill.r;
 			pixels[3*(x + y*kTextureSize)+1] = fill.g;
 			pixels[3*(x + y*kTextureSize)+2] = fill.b;
 			}
 		}
+
+	}
+	for (int y = starty; y <= endy; y++) {
+		for (int x = startx; x <= endx; x++) {
+			if (((y+1)%2==0 && x>y && x+y <= endx) || ((x+1)%2==0 && x>y && x+y >= endx) 
+			|| ((x+1)%2==0 && x<y && x+y <= endx) || ((y+1)%2==0 && x<y && x+y >= endx) || (x==y) && (x+1)%2==0){
+			pixels[3*(x + y*kTextureSize)] = fill2.r;
+			pixels[3*(x + y*kTextureSize)+1] = fill2.g;
+			pixels[3*(x + y*kTextureSize)+2] = fill2.b;
+			}
+		}
+
 	}
 }
 
@@ -95,9 +108,8 @@ void CatPictureApp::blueTintImage(uint8_t* pixels)
 	int x,y;
 	for( y=1;y<kAppHeight-1;y++){
 		for( x=1;x<kAppWidth-1;x++){
-			if (x%2 == 0){
-				//pixels[3*(x + y*kTextureSize)] = 50;
-			}
+		  pixels[3*(x + y*kTextureSize)+2] = 255;
+
 		}
 	}
 
@@ -136,8 +148,8 @@ void CatPictureApp::update()
 	uint8_t* dataArray = (*mySurface_).getData();
 
 	Color8u rectFill = Color8u(255,0,0);
-	Color8u rectFill2 = Color8u(150,150,150);
-	basicRectangle(dataArray, 200, 400, 200, 500, rectFill, rectFill2); 
+	Color8u rectFill2 = Color8u(0,0,255);
+	basicRectangle(dataArray, 0, 250, 0, 400, rectFill, rectFill2); 
 
 	blueTintImage(dataArray);
 
