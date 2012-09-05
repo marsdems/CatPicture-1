@@ -47,6 +47,8 @@ class CatPictureApp : public AppBasic {
 	// c1 and c2. This satisfies Requirement A.1 (rectangle).
 	void basicRectangle (uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u c1, Color8u c2);
 
+	void CatPictureApp::blur(uint8_t* pixels);
+
 
     void basicCircle (uint8_t* pixels, int x, int y, int r, Color8u col);
 
@@ -312,8 +314,12 @@ void CatPictureApp::mouseDown(MouseEvent event)
 	int x = event.getX();
 	int y = event.getY();
 
-	basicCircle(dataArray,x,y,20,Color8u(0,0,255));
+	basicCircle(dataArray,x,y,20,Color8u(frame_number_+100,frame_number_,frame_number_+200));
 	
+}
+
+void CatPictureApp::blur(uint8_t* pixels){
+
 }
 
 void CatPictureApp::update()
@@ -323,13 +329,16 @@ void CatPictureApp::update()
 	Color8u rectFill = Color8u(frame_number_,0,0);
 	Color8u rectFill2 = Color8u(0,0,frame_number_);
 	Color8u circleCol = Color8u(0,frame_number_,0);
+	Color8u gradient = Color8u(frame_number_+100, frame_number_+5, frame_number_+ 180);
 	basicRectangle(dataArray, 500, 250, frame_number_+ 100, 200, rectFill, rectFill2); 
 	basicLine(dataArray,5,10,150,300, rectFill);
 	basicLine(dataArray,5,80,500,20, rectFill2);
 	basicLine(dataArray,200,300,150,310, circleCol);
-	basicTriangle(dataArray, 50, 100, 150, frame_number_, frame_number_+50, 300, circleCol);
+	basicLine(dataArray,(frame_number_)/10 + 700,0, (frame_number_)/10 + 700, 700, gradient);
+	basicTriangle(dataArray, 50, frame_number_+100, 150, frame_number_, frame_number_+50, frame_number_+150, circleCol);
 	basicCircle(dataArray, 700,250,frame_number_/8, rectFill);
 	basicTriangle(dataArray, 0, 0, 0, 500, 150, 450, circleCol);
+	//blur(dataArray);
 
 	//Only save the first frame of drawing as output, code snippet via Dr. Brinkman
 	if(frame_number_ == 0){
