@@ -43,21 +43,18 @@ class CatPictureApp : public AppBasic {
 	static const int kAppHeight=600;
 	static const int kTextureSize=1024;
 
-	// Creates a basic Rectangle with starting point (x1, y1) and ending point (x2, y2) with color
-	// c1 and c2. This satisfies Requirement A.1 (rectangle).
+	// Creates a basic Rectangle. This satisfies Requirement A.1 (rectangle).
 	void basicRectangle (uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u c1, Color8u c2);
 
 	void CatPictureApp::blur(uint8_t* pixels);
 
-
+	//Creates a basic circle to satisfy requirment A.2
     void basicCircle (uint8_t* pixels, int x, int y, int r, Color8u col);
 
-	// Creates a basic line with starting point (x1, y1) and ending point (x2, y2) with color c1.
-	// This satisfies Requirement A.3 (line).
+	// Creates a basic line. This satisfies Requirement A.3 (line).
 	void basicLine (uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u col);
 
-	// Creates a basic triangle with three points (x1, y1), (x2, y2), (x3, y3) with color c1.
-	// This satisfies Requirement A.7 (triangle).
+	// Creates a basic triangle. This satisfies Requirement A.7 (triangle).
 	void basicTriangle (uint8_t* pixels, int x1, int y1, int x2, int y2, int x3, int y3, Color8u c1);
 };
 
@@ -106,11 +103,9 @@ void CatPictureApp::basicRectangle(uint8_t* pixels, int x1, int x2, int y1, int 
 }
 
 void CatPictureApp::basicCircle (uint8_t* pixels, int x, int y, int r, Color8u col){
-	for(int y1 = y - r; y1 <= y + r; y1++)
-	{
-		for(int x1 = x - r; x1 <= x + r; x1++)
-		{
-			//Bounds test, to make sure we don't access array out of bounds
+	for(int y1 = y - r; y1 <= y + r; y1++){
+		for(int x1 = x - r; x1 <= x + r; x1++){
+			//Boundry checking
 			if(y1 < 0 || x1 < 0 || x1 >= kAppWidth || y1 >= kAppHeight) continue;
 			int dist = (int)sqrt((double)((x1-x)*(x1-x) + (y1-y)*(y1-y)));
 			if(dist <= r)
@@ -122,7 +117,7 @@ void CatPictureApp::basicCircle (uint8_t* pixels, int x, int y, int r, Color8u c
 		}
 	}
 }
-
+// Line was mostly taken from http://www.codekeep.net/snippets/e39b2d9e-0843-4405-8e31-44e212ca1c45.aspx, and optimized for this project. 
 void CatPictureApp::basicLine(uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u col)
 {
 	//Determines the starting and ending coordinates for the line
@@ -307,7 +302,7 @@ void CatPictureApp::setup()
 	//This is the setup that everyone needs to do
 	mySurface_ = new Surface(kTextureSize,kTextureSize,false);
 }
-
+// THis satisfies requirment E.6
 void CatPictureApp::mouseDown(MouseEvent event)
 {
 	uint8_t* dataArray = (*mySurface_).getData();
@@ -335,12 +330,13 @@ void CatPictureApp::update()
 	basicLine(dataArray,5,80,500,20, rectFill2);
 	basicLine(dataArray,200,300,150,310, circleCol);
 	basicLine(dataArray,(frame_number_)/10 + 700,0, (frame_number_)/10 + 700, 700, gradient);
+	//this satisfies requirment E.5
 	basicTriangle(dataArray, 50, frame_number_+100, 150, frame_number_, frame_number_+50, frame_number_+150, circleCol);
 	basicCircle(dataArray, 700,250,frame_number_/8, rectFill);
 	basicTriangle(dataArray, 0, 0, 0, 500, 150, 450, circleCol);
 	//blur(dataArray);
 
-	//Only save the first frame of drawing as output, code snippet via Dr. Brinkman
+	//Only save the first frame of drawing as output, code snippet via Dr. Brinkman, Satisfies part D.
 	if(frame_number_ == 0){
 		writeImage("kosciaaj.png",*mySurface_);
 	}
