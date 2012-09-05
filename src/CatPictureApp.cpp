@@ -52,7 +52,7 @@ class CatPictureApp : public AppBasic {
 
 	// Creates a basic line with starting point (x1, y1) and ending point (x2, y2) with color c1.
 	// This satisfies Requirement A.3 (line).
-	void basicLine (uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u c1);
+	void basicLine (uint8_t* pixels, int x1, int y1, int x2, int y2);
 
 	// Creates a basic triangle with three points (x1, y1), (x2, y2), (x3, y3) with color c1.
 	// This satisfies Requirement A.7 (triangle).
@@ -106,8 +106,8 @@ void CatPictureApp::basicRectangle(uint8_t* pixels, int x1, int x2, int y1, int 
 void CatPictureApp::blueTintImage(uint8_t* pixels) 
 {
 	int x,y;
-	for( y=1;y<kAppHeight-1;y++){
-		for( x=1;x<kAppWidth-1;x++){
+	for( y=0;y<kAppHeight-1;y++){
+		for( x=0;x<kAppWidth-1;x++){
 		  pixels[3*(x + y*kTextureSize)+2] = 255;
 
 		}
@@ -116,16 +116,181 @@ void CatPictureApp::blueTintImage(uint8_t* pixels)
 	
 }
 
-void CatPictureApp::basicLine(uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u c1)
+void CatPictureApp::basicLine(uint8_t* pixels, int x1, int y1, int x2, int y2)
 {
+	//Determines the starting and ending coordinates for the line
+	int startx = (x1 < x2) ? x1 : x2;
+	int endx = (x1 < x2) ? x2 : x1;
+	int starty = (y1 < y2) ? y1 : y2;
+	int endy = (y1 < y2) ? y2 : y1;
+	
+	//Boundary Checking
+	if (endx < 0) return;
+	if (endy < 0) return;
+	if (startx >= kAppWidth) return;
+	if (starty >= kAppHeight) return;
+	if (endx >= kAppWidth) endx = kAppWidth - 1;
+	if (endy >= kAppHeight) endy = kAppHeight - 1;
+
+int F, x, y;
+
+    // Handle trivial cases separately for algorithm speed up.
+    // Trivial case 1: m = +/-INF (Vertical line)
+    if (x1 == x2)
+    {
+        if (y1 > y2)  // Swap y-coordinates if p1 is above p2
+        {
+            swap(y1, y2);
+        }
+
+        x = x1;
+        y = y1;
+        while (y <= y2)
+        {
+            pixels[3*(x + y*kTextureSize)] = 0;
+			pixels[3*(x + y*kTextureSize)+1] = 0;
+			pixels[3*(x + y*kTextureSize)+2] = 0;
+            y++;
+        }
+        return;
+    }
+    // Trivial case 2: m = 0 (Horizontal line)
+    else if (y1 == y2)
+    {
+        x = x1;
+        y = y1;
+
+        while (x <= x2)
+        {
+            pixels[3*(x + y*kTextureSize)] = 0;
+			pixels[3*(x + y*kTextureSize)+1] = 0;
+			pixels[3*(x + y*kTextureSize)+2] = 0;
+            x++;
+        }
+        return;
+    }
 
 
+    int dy            = y2 - y1;  // y-increment from p1 to p2
+    int dx            = x2 - x1;  // x-increment from p1 to p2
+    int dy2           = (dy << 1);  // dy << 1 == 2*dy
+    int dx2           = (dx << 1);
+    int dy2_minus_dx2 = dy2 - dx2;  // precompute constant for speed up
+    int dy2_plus_dx2  = dy2 + dx2;
+
+
+    if (dy >= 0)    // m >= 0
+    {
+        // Case 1: 0 <= m <= 1 (Original case)
+        if (dy <= dx)   
+        {
+            F = dy2 - dx;    // initial F
+
+            x = x1;
+            y = y1;
+            while (x <= x2)
+            {
+            pixels[3*(x + y*kTextureSize)] = 0;
+			pixels[3*(x + y*kTextureSize)+1] = 0;
+			pixels[3*(x + y*kTextureSize)+2] = 0;
+                if (F <= 0)
+                {
+                    F += dy2;
+                }
+                else
+                {
+                    y++;
+                    F += dy2_minus_dx2;
+                }
+                x++;
+            }
+        }
+        // Case 2: 1 < m < INF (Mirror about y=x line
+        // replace all dy by dx and dx by dy)
+        else
+        {
+            F = dx2 - dy;    // initial F
+
+            y = y1;
+            x = x1;
+            while (y <= y2)
+            {
+            pixels[3*(x + y*kTextureSize)] = 0;
+			pixels[3*(x + y*kTextureSize)+1] = 0;
+			pixels[3*(x + y*kTextureSize)+2] = 0;
+                if (F <= 0)
+                {
+                    F += dx2;
+                }
+                else
+                {
+                    x++;
+                    F -= dy2_minus_dx2;
+                }
+                y++;
+            }
+        }
+    }
+    else    // m < 0
+    {
+        // Case 3: -1 <= m < 0 (Mirror about x-axis, replace all dy by -dy)
+        if (dx >= -dy)
+        {
+            F = -dy2 - dx;    // initial F
+
+            x = x1;
+            y = y1;
+            while (x <= x2)
+            {
+            pixels[3*(x + y*kTextureSize)] = 0;
+			pixels[3*(x + y*kTextureSize)+1] = 0;
+			pixels[3*(x + y*kTextureSize)+2] = 0;
+                if (F <= 0)
+                {
+                    F -= dy2;
+                }
+                else
+                {
+                    y--;
+                    F -= dy2_plus_dx2;
+                }
+                x++;
+            }
+        }
+        // Case 4: -INF < m < -1 (Mirror about x-axis and mirror 
+        // about y=x line, replace all dx by -dy and dy by dx)
+        else    
+        {
+            F = dx2 + dy;    // initial F
+
+            y = y1;
+            x = x1;
+            while (y >= y2)
+            {
+            pixels[3*(x + y*kTextureSize)] = 0;
+			pixels[3*(x + y*kTextureSize)+1] = 0;
+			pixels[3*(x + y*kTextureSize)+2] = 0;
+                if (F <= 0)
+                {
+                    F += dx2;
+                }
+                else
+                {
+                    x++;
+                    F += dy2_plus_dx2;
+                }
+                y--;
+            }
+        }
+    }
 
 }
 
 void CatPictureApp::basicTriangle (uint8_t* pixels, int x1, int y1, int x2, int y2, int x3, int y3, Color8u c1)
 {
-
+	basicLine(pixels, x1, y1, x2, y2);
+	basicLine(pixels, x2, y2, x3, y3);
+	basicLine(pixels, x3, y3, x1, y1);
 }
 
 void CatPictureApp::setup()
@@ -149,7 +314,11 @@ void CatPictureApp::update()
 
 	Color8u rectFill = Color8u(255,0,0);
 	Color8u rectFill2 = Color8u(0,0,255);
-	basicRectangle(dataArray, 0, 250, 0, 400, rectFill, rectFill2); 
+	basicRectangle(dataArray, 500, 250, 400, 200, rectFill, rectFill2); 
+	basicLine(dataArray,5,10,150,300);
+	basicLine(dataArray,5,80,500,20);
+	basicLine(dataArray,200,300,150,310);
+	basicTriangle(dataArray, 50, 100, 150, 200, 150, 300, rectFill);
 
 	blueTintImage(dataArray);
 
