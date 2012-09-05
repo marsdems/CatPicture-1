@@ -28,7 +28,7 @@ using namespace std;
 class CatPictureApp : public AppBasic {
   public:
 	void setup();
-	void mouseDown( MouseEvent event );	
+	void mouseDown(MouseEvent event);	
 	void update();
 	void draw();
 	void prepareSettings(Settings* setttings);
@@ -48,11 +48,11 @@ class CatPictureApp : public AppBasic {
 	void basicRectangle (uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u c1, Color8u c2);
 
 
-	void blueTintImage (uint8_t* pixels);
+    void basicCircle (uint8_t* pixels, int x, int y, int r, Color8u col);
 
 	// Creates a basic line with starting point (x1, y1) and ending point (x2, y2) with color c1.
 	// This satisfies Requirement A.3 (line).
-	void basicLine (uint8_t* pixels, int x1, int y1, int x2, int y2);
+	void basicLine (uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u col);
 
 	// Creates a basic triangle with three points (x1, y1), (x2, y2), (x3, y3) with color c1.
 	// This satisfies Requirement A.7 (triangle).
@@ -103,20 +103,25 @@ void CatPictureApp::basicRectangle(uint8_t* pixels, int x1, int x2, int y1, int 
 	}
 }
 
-void CatPictureApp::blueTintImage(uint8_t* pixels) 
-{
-	int x,y;
-	for( y=0;y<kAppHeight-1;y++){
-		for( x=0;x<kAppWidth-1;x++){
-		  pixels[3*(x + y*kTextureSize)+2] = 255;
-
+void CatPictureApp::basicCircle (uint8_t* pixels, int x, int y, int r, Color8u col){
+	for(int y1 = y - r; y1 <= y + r; y1++)
+	{
+		for(int x1 = x - r; x1 <= x + r; x1++)
+		{
+			//Bounds test, to make sure we don't access array out of bounds
+			if(y1 < 0 || x1 < 0 || x1 >= kAppWidth || y1 >= kAppHeight) continue;
+			int dist = (int)sqrt((double)((x1-x)*(x1-x) + (y1-y)*(y1-y)));
+			if(dist <= r)
+			{
+		    pixels[3*(x1 + y1*kTextureSize)] = col.r;
+			pixels[3*(x1 + y1*kTextureSize)+1] =col.g;
+			pixels[3*(x1 + y1*kTextureSize)+2] = col.b;	
+			}
 		}
 	}
-
-	
 }
 
-void CatPictureApp::basicLine(uint8_t* pixels, int x1, int y1, int x2, int y2)
+void CatPictureApp::basicLine(uint8_t* pixels, int x1, int y1, int x2, int y2, Color8u col)
 {
 	//Determines the starting and ending coordinates for the line
 	int startx = (x1 < x2) ? x1 : x2;
@@ -147,9 +152,9 @@ int F, x, y;
         y = y1;
         while (y <= y2)
         {
-            pixels[3*(x + y*kTextureSize)] = 0;
-			pixels[3*(x + y*kTextureSize)+1] = 0;
-			pixels[3*(x + y*kTextureSize)+2] = 0;
+            pixels[3*(x + y*kTextureSize)] = col.r;
+			pixels[3*(x + y*kTextureSize)+1] = col.g;
+			pixels[3*(x + y*kTextureSize)+2] = col.b;
             y++;
         }
         return;
@@ -162,9 +167,9 @@ int F, x, y;
 
         while (x <= x2)
         {
-            pixels[3*(x + y*kTextureSize)] = 0;
-			pixels[3*(x + y*kTextureSize)+1] = 0;
-			pixels[3*(x + y*kTextureSize)+2] = 0;
+            pixels[3*(x + y*kTextureSize)] = col.r;
+			pixels[3*(x + y*kTextureSize)+1] = col.g;
+			pixels[3*(x + y*kTextureSize)+2] = col.b;
             x++;
         }
         return;
@@ -190,9 +195,9 @@ int F, x, y;
             y = y1;
             while (x <= x2)
             {
-            pixels[3*(x + y*kTextureSize)] = 0;
-			pixels[3*(x + y*kTextureSize)+1] = 0;
-			pixels[3*(x + y*kTextureSize)+2] = 0;
+            pixels[3*(x + y*kTextureSize)] = col.r;
+			pixels[3*(x + y*kTextureSize)+1] = col.g;
+			pixels[3*(x + y*kTextureSize)+2] = col.b;
                 if (F <= 0)
                 {
                     F += dy2;
@@ -215,9 +220,9 @@ int F, x, y;
             x = x1;
             while (y <= y2)
             {
-            pixels[3*(x + y*kTextureSize)] = 0;
-			pixels[3*(x + y*kTextureSize)+1] = 0;
-			pixels[3*(x + y*kTextureSize)+2] = 0;
+           pixels[3*(x + y*kTextureSize)] = col.r;
+			pixels[3*(x + y*kTextureSize)+1] = col.g;
+			pixels[3*(x + y*kTextureSize)+2] = col.b;
                 if (F <= 0)
                 {
                     F += dx2;
@@ -242,9 +247,9 @@ int F, x, y;
             y = y1;
             while (x <= x2)
             {
-            pixels[3*(x + y*kTextureSize)] = 0;
-			pixels[3*(x + y*kTextureSize)+1] = 0;
-			pixels[3*(x + y*kTextureSize)+2] = 0;
+            pixels[3*(x + y*kTextureSize)] = col.r;
+			pixels[3*(x + y*kTextureSize)+1] = col.g;
+			pixels[3*(x + y*kTextureSize)+2] = col.b;
                 if (F <= 0)
                 {
                     F -= dy2;
@@ -267,9 +272,9 @@ int F, x, y;
             x = x1;
             while (y >= y2)
             {
-            pixels[3*(x + y*kTextureSize)] = 0;
-			pixels[3*(x + y*kTextureSize)+1] = 0;
-			pixels[3*(x + y*kTextureSize)+2] = 0;
+            pixels[3*(x + y*kTextureSize)] = col.r;
+			pixels[3*(x + y*kTextureSize)+1] = col.g;
+			pixels[3*(x + y*kTextureSize)+2] = col.b;
                 if (F <= 0)
                 {
                     F += dx2;
@@ -288,9 +293,9 @@ int F, x, y;
 
 void CatPictureApp::basicTriangle (uint8_t* pixels, int x1, int y1, int x2, int y2, int x3, int y3, Color8u c1)
 {
-	basicLine(pixels, x1, y1, x2, y2);
-	basicLine(pixels, x2, y2, x3, y3);
-	basicLine(pixels, x3, y3, x1, y1);
+	basicLine(pixels, x1, y1, x2, y2,c1);
+	basicLine(pixels, x2, y2, x3, y3,c1);
+	basicLine(pixels, x3, y3, x1, y1,c1);
 }
 
 void CatPictureApp::setup()
@@ -301,32 +306,39 @@ void CatPictureApp::setup()
 	mySurface_ = new Surface(kTextureSize,kTextureSize,false);
 }
 
-void CatPictureApp::mouseDown( MouseEvent event )
+void CatPictureApp::mouseDown(MouseEvent event)
 {
-	
+	uint8_t* dataArray = (*mySurface_).getData();
+	int x = event.getX();
+	int y = event.getY();
+
+	basicCircle(dataArray,x,y,20,Color8u(0,0,255));
 	
 }
 
 void CatPictureApp::update()
 {
 	//Get our array of pixel information
-	uint8_t* dataArray = (*mySurface_).getData();
-
-	Color8u rectFill = Color8u(255,0,0);
-	Color8u rectFill2 = Color8u(0,0,255);
-	basicRectangle(dataArray, 500, 250, 400, 200, rectFill, rectFill2); 
-	basicLine(dataArray,5,10,150,300);
-	basicLine(dataArray,5,80,500,20);
-	basicLine(dataArray,200,300,150,310);
-	basicTriangle(dataArray, 50, 100, 150, 200, 150, 300, rectFill);
-
-	blueTintImage(dataArray);
+	uint8_t* dataArray = (*mySurface_).getData(); 
+	Color8u rectFill = Color8u(frame_number_,0,0);
+	Color8u rectFill2 = Color8u(0,0,frame_number_);
+	Color8u circleCol = Color8u(0,frame_number_,0);
+	basicRectangle(dataArray, 500, 250, frame_number_+ 100, 200, rectFill, rectFill2); 
+	basicLine(dataArray,5,10,150,300, rectFill);
+	basicLine(dataArray,5,80,500,20, rectFill2);
+	basicLine(dataArray,200,300,150,310, circleCol);
+	basicTriangle(dataArray, 50, 100, 150, frame_number_, frame_number_+50, 300, circleCol);
+	basicCircle(dataArray, 700,250,frame_number_/8, rectFill);
+	basicTriangle(dataArray, 0, 0, 0, 500, 150, 450, circleCol);
 
 	//Only save the first frame of drawing as output, code snippet via Dr. Brinkman
 	if(frame_number_ == 0){
 		writeImage("kosciaaj.png",*mySurface_);
 	}
 	//keeps track of how many frames we have shown.
+	if (frame_number_ == 500){
+		frame_number_=0;
+	}
 	frame_number_++;
 }
 
