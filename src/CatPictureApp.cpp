@@ -56,6 +56,10 @@ class CatPictureApp : public AppBasic {
 
 	// Creates a basic triangle. This satisfies Requirement A.7 (triangle).
 	void basicTriangle (uint8_t* pixels, int x1, int y1, int x2, int y2, int x3, int y3, Color8u c1);
+
+	// - Mike Marsden, I wrote a simple setPixel method so that would reduce some redundant code section, 
+	// basically anywhere the pixels section is used.  
+	void setPixel(uint8_t* pixels, int xCoor, int yCoor, Color8u c1);
 };
 
 void CatPictureApp::prepareSettings(Settings* settings) {
@@ -82,9 +86,7 @@ void CatPictureApp::basicRectangle(uint8_t* pixels, int x1, int x2, int y1, int 
 		for (int x = startx; x <= endx; x++) {
 			if ((y == starty || y == endy) || (x == startx || x == endx) || (y%2==0 && x>y && x+y <= endx) || (x%2==0 && x>y && x+y >= endx) 
 			|| (x%2==0 && x<y && x+y <= endx) || (y%2==0 && x<y && x+y >= endx) || (x==y) && x%2==0){
-			pixels[3*(x + y*kTextureSize)] = fill.r;
-			pixels[3*(x + y*kTextureSize)+1] = fill.g;
-			pixels[3*(x + y*kTextureSize)+2] = fill.b;
+			setPixel(pixels, x, y, fill);
 			}
 		}
 
@@ -93,9 +95,7 @@ void CatPictureApp::basicRectangle(uint8_t* pixels, int x1, int x2, int y1, int 
 		for (int x = startx; x <= endx; x++) {
 			if (((y+1)%2==0 && x>y && x+y <= endx) || ((x+1)%2==0 && x>y && x+y >= endx) 
 			|| ((x+1)%2==0 && x<y && x+y <= endx) || ((y+1)%2==0 && x<y && x+y >= endx) || (x==y) && (x+1)%2==0){
-			pixels[3*(x + y*kTextureSize)] = fill2.r;
-			pixels[3*(x + y*kTextureSize)+1] = fill2.g;
-			pixels[3*(x + y*kTextureSize)+2] = fill2.b;
+			setPixel(pixels, x, y, fill2);
 			}
 		}
 
@@ -110,9 +110,7 @@ void CatPictureApp::basicCircle (uint8_t* pixels, int x, int y, int r, Color8u c
 			int dist = (int)sqrt((double)((x1-x)*(x1-x) + (y1-y)*(y1-y)));
 			if(dist <= r)
 			{
-		    pixels[3*(x1 + y1*kTextureSize)] = col.r;
-			pixels[3*(x1 + y1*kTextureSize)+1] =col.g;
-			pixels[3*(x1 + y1*kTextureSize)+2] = col.b;	
+		    setPixel(pixels, x1, y1, col);
 			}
 		}
 	}
@@ -149,9 +147,7 @@ int F, x, y;
         y = y1;
         while (y <= y2)
         {
-            pixels[3*(x + y*kTextureSize)] = col.r;
-			pixels[3*(x + y*kTextureSize)+1] = col.g;
-			pixels[3*(x + y*kTextureSize)+2] = col.b;
+            setPixel(pixels, x, y, col);
             y++;
         }
         return;
@@ -164,9 +160,7 @@ int F, x, y;
 
         while (x <= x2)
         {
-            pixels[3*(x + y*kTextureSize)] = col.r;
-			pixels[3*(x + y*kTextureSize)+1] = col.g;
-			pixels[3*(x + y*kTextureSize)+2] = col.b;
+            setPixel(pixels, x, y, col);
             x++;
         }
         return;
@@ -192,9 +186,7 @@ int F, x, y;
             y = y1;
             while (x <= x2)
             {
-            pixels[3*(x + y*kTextureSize)] = col.r;
-			pixels[3*(x + y*kTextureSize)+1] = col.g;
-			pixels[3*(x + y*kTextureSize)+2] = col.b;
+            setPixel(pixels, x, y, col);
                 if (F <= 0)
                 {
                     F += dy2;
@@ -217,9 +209,7 @@ int F, x, y;
             x = x1;
             while (y <= y2)
             {
-           pixels[3*(x + y*kTextureSize)] = col.r;
-			pixels[3*(x + y*kTextureSize)+1] = col.g;
-			pixels[3*(x + y*kTextureSize)+2] = col.b;
+          setPixel(pixels, x, y, col);
                 if (F <= 0)
                 {
                     F += dx2;
@@ -244,9 +234,7 @@ int F, x, y;
             y = y1;
             while (x <= x2)
             {
-            pixels[3*(x + y*kTextureSize)] = col.r;
-			pixels[3*(x + y*kTextureSize)+1] = col.g;
-			pixels[3*(x + y*kTextureSize)+2] = col.b;
+            setPixel(pixels, x, y, col);
                 if (F <= 0)
                 {
                     F -= dy2;
@@ -269,9 +257,7 @@ int F, x, y;
             x = x1;
             while (y >= y2)
             {
-            pixels[3*(x + y*kTextureSize)] = col.r;
-			pixels[3*(x + y*kTextureSize)+1] = col.g;
-			pixels[3*(x + y*kTextureSize)+2] = col.b;
+            setPixel(pixels, x, y, col);
                 if (F <= 0)
                 {
                     F += dx2;
@@ -295,6 +281,12 @@ void CatPictureApp::basicTriangle (uint8_t* pixels, int x1, int y1, int x2, int 
 	basicLine(pixels, x3, y3, x1, y1,c1);
 }
 
+void CatPictureApp::setPixel(uint8_t* pixels, int xCoor, int yCoor, Color8u c1)
+{
+	pixels[3*(xCoor + yCoor*kTextureSize)] = c1.r;
+	pixels[3*(xCoor + yCoor*kTextureSize)+1] = c1.g;
+	pixels[3*(xCoor + yCoor*kTextureSize)+2] = c1.b;
+}
 void CatPictureApp::setup()
 {
 	frame_number_=0;
@@ -313,6 +305,7 @@ void CatPictureApp::mouseDown(MouseEvent event)
 	
 }
 
+// - Mike Marsden, still not sure how to implement this method either
 void CatPictureApp::blur(uint8_t* pixels){
 
 }
